@@ -1,4 +1,9 @@
+// https://nuxt.com/docs/guide/concepts/typescript
 {
-  // https://nuxt.com/docs/guide/concepts/typescript
+  "compilerOptions": {
+    "types": ["@types/node", "vuetify"],
+    "module": "esnext",
+    "target": "es2020"
+  },
   "extends": "./.nuxt/tsconfig.json"
 }
