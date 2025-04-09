@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   app: {
     baseURL: "/roulette/",
     head: {
-      title: "Roulette",
+      title: "El juego de la ruleta",
       link: [{ rel: "icon", type: "image/ico", href: "/roulette.ico" }],
     },
   },
