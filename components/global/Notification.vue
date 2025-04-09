@@ -1,7 +1,7 @@
 <template>
   <v-snackbar
     v-model="visible"
-    :timeout="4000"
+    :timeout="6000"
     :color="color"
     location="top end"
     multi-line
@@ -29,11 +29,11 @@ const store = $useNotification as {
 };
 
 // Refs reactivas para el snackbar
-const visible = ref(false);
-const title = ref("");
-const message = ref("");
-const color = ref("primary");
 const icon = ref("mdi-information");
+const color = ref("primary");
+const visible = ref(false);
+const message = ref("");
+const title = ref("");
 
 // Tipado explícito
 const typeMap = {

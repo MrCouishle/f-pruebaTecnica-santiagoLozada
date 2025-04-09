@@ -10,6 +10,7 @@
     :label="label"
     hide-details
     dense
+    autocomplete="off"
   />
 </template>
 

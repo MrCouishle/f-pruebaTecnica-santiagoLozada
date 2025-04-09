@@ -22,13 +22,11 @@
           <!-- Datos -->
           <div v-if="result.winner">
             <div class="text-h6 mt-2">Recompensa: {{ result.profit }}$</div>
-            <div class="text-subtitle-1">Nuevo balance: {{ result.profit }}$</div>
+            <div class="text-subtitle-1">Nuevo saldo: {{ result.currentBalance }}$</div>
           </div>
           <div v-else>
-            <div class="text-h6 mt-2">Apuesta: {{ result.profit }}$</div>
-            <div class="text-subtitle-1">
-              Nuevo balance: {{ result.remainingBalance - result.betValue }}$
-            </div>
+            <div class="text-h6 mt-2">Apuesta: {{ result.betValue }}$</div>
+            <div class="text-subtitle-1">Nuevo saldo: {{ result.currentBalance }}$</div>
           </div>
         </div>
       </div>
@@ -57,16 +55,18 @@ import winnerAnimation from "@/assets/animations/winner.json";
 import loserAnimation from "@/assets/animations/loser.json";
 import { ref, watch } from "vue";
 import lottie from "lottie-web";
+import { User } from "~/types";
 
 const { $callNotification } = useNuxtApp();
 const apiResult = useResult();
+const userSave = reactive(User.create());
 
 const props = defineProps({
   visible: { type: Boolean },
   result: { type: Object as PropType<IResult>, required: true },
 });
 
-const emit = defineEmits(["update:visible", "close"]);
+const emit = defineEmits(["update:visible", "close", "closeSave"]);
 
 const animationContainer = ref<HTMLElement | null>(null);
 let animationInstance: any = null;
@@ -75,7 +75,6 @@ const dialog = ref(false);
 watch(
   () => props.visible,
   (val) => {
-    console.log("🚀 ~ props:", props);
     dialog.value = val;
     if (val) loadAnimation();
   }
@@ -107,17 +106,18 @@ const saveResult = async () => {
   }
   try {
     const response = await apiResult.create({ result: props.result });
-    close();
+    Object.assign(userSave, response.user);
+    return close(true);
   } catch (error) {
     console.error(error);
     return $callNotification({ message: error });
   }
 };
 
-const close = () => {
+const close = (save: boolean) => {
   dialog.value = false;
   emit("update:visible", false);
-  emit("close");
+  save ? emit("closeSave", userSave) : emit("close");
 };
 </script>
 
