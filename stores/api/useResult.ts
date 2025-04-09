@@ -12,7 +12,34 @@ export const useResult = defineStore("useResult", {
           endpoint: `/result/getResults`,
           method: "get",
         });
-        return response.data;
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getValidateResult({
+      userId,
+      betValue,
+      betNumber,
+      resultNumber,
+      betColor,
+      evenOdd,
+    }: {
+      userId: string;
+      betValue: number;
+      betNumber: number;
+      resultNumber: number;
+      betColor: string;
+      evenOdd: string;
+    }) {
+      try {
+        const response = await apiRequest({
+          endpoint: `/result/getValidateResult`,
+          params: { userId, betValue, betNumber, resultNumber, betColor, evenOdd },
+          method: "get",
+        });
+        console.log("🚀 ~ response:", response);
+        return response;
       } catch (error) {
         throw error;
       }

@@ -12,7 +12,18 @@ export const useRouletteNumber = defineStore("useRouletteNumber", {
           endpoint: `/rouletteNumber/getRouletteNumbers`,
           method: "get",
         });
-        return response.data;
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    },
+    async getRandomNumber() {
+      try {
+        const response = await apiRequest({
+          endpoint: `/rouletteNumber/getRandomNumber`,
+          method: "get",
+        });
+        return response;
       } catch (error) {
         throw error;
       }

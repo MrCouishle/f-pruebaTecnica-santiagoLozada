@@ -22,10 +22,6 @@ export class User implements IUser {
       }
     }
 
-    if (this.balance <= 0) {
-      return "El crédito  debe ser mayor a 0.";
-    }
-
     return "";
   }
 }

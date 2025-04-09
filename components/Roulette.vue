@@ -10,9 +10,9 @@
         <div class="plate-center-text"></div>
         <ul :data-spinto="spinto">
           <li
-            v-for="(num, index) in numbers"
+            v-for="(num, index) in numbersOrder"
             :key="num"
-            :class="['number', numberColors[num]]"
+            :class="['number', rouletteNumbers[num]]"
             :style="getRotationStyle(index)"
           >
             <label>
@@ -22,10 +22,10 @@
           </li>
         </ul>
       </div>
-      <div class="text-center">
+      <div :class="textCenterClass">
         {{ centerText }}
       </div>
-      <div>
+      <div class="results-overlay">
         <Results :results="previousResults" />
       </div>
     </div>
@@ -36,118 +36,122 @@
 import { ref, watch } from "vue";
 
 const props = defineProps({
+  rouletteNumbers: {
+    type: Object,
+    default: false,
+  },
   onSpin: {
+    type: Boolean,
+    default: false,
+  },
+  onReset: {
     type: Boolean,
     default: false,
   },
 });
 
-watch(
-  () => props.onSpin,
-  (newVal) => {
-    if (newVal) {
-      spin();
-    }
-  }
-);
+const emit = defineEmits(["spin-end"]);
 
-const numbers = [
+const { $callNotification } = useNuxtApp();
+
+const apiRouletteNumber = useRouletteNumber();
+
+const centerText = ref("Hagan sus apuestas");
+const previousResults = ref([]);
+const currentRotation = ref(0);
+const resultNumber = ref("00");
+const resultColor = ref("red");
+const isResting = ref(false);
+const spinSound = ref(null);
+const spinto = ref(null);
+const plate = ref(null);
+
+const numbersOrder = [
   0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1,
   20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26,
 ];
 
-const numberColors = {
-  0: "green",
-  1: "red",
-  2: "black",
-  3: "red",
-  4: "black",
-  5: "red",
-  6: "black",
-  7: "red",
-  8: "black",
-  9: "red",
-  10: "black",
-  11: "black",
-  12: "red",
-  13: "black",
-  14: "red",
-  15: "black",
-  16: "red",
-  17: "black",
-  18: "red",
-  19: "red",
-  20: "black",
-  21: "red",
-  22: "black",
-  23: "red",
-  24: "black",
-  25: "red",
-  26: "black",
-  27: "red",
-  28: "black",
-  29: "black",
-  30: "red",
-  31: "black",
-  32: "red",
-  33: "black",
-  34: "red",
-  35: "black",
-  36: "red",
-};
+const textCenterClass = computed(() => {
+  return centerText.value.includes("Resultado") ? "text-center result" : "text-center";
+});
 
-const plate = ref(null);
-const isResting = ref(false);
-const isSpinning = ref(false);
-const spinto = ref(null);
-const resultNumber = ref("00");
-const resultColor = ref("red");
-const previousResults = ref([]);
-const currentRotation = ref(0);
-const centerText = ref("Hagan sus apuestas");
+watch(
+  () => [props.onSpin, props.onReset],
+  ([spinVal, resetVal]) => {
+    if (spinVal) {
+      spin();
+    }
+    if (resetVal) {
+      reset();
+    }
+  }
+);
 
-const spin = () => {
-  centerText.value = `No más apuestas...`;
-  const randIndex = Math.floor(Math.random() * numbers.length);
-  const selectedNumber = numbers[randIndex];
+onMounted(() => {
+  spinSound.value = new Audio("/sounds/roulette-spin.mp3");
+});
 
-  const anglePerNumber = 360 / numbers.length;
-  const extraRotations = 5;
-
-  // 1. Ángulo donde debería terminar el número sorteado
-  const targetAngle = 360 - anglePerNumber * randIndex;
-
-  // 2. Ángulo actual (mod 360 para quedarnos con la fracción de vuelta)
-  const currentAngle = currentRotation.value % 360;
-
-  // 3. Cuántos grados faltan desde el ángulo actual al número objetivo
-  const angleDiff = (targetAngle - currentAngle + 360) % 360;
-
-  // 4. Le sumamos las vueltas extra completas
-  const totalRotation = 360 * extraRotations + angleDiff;
-
-  // 5. Aplicamos la rotación acumulada
-  currentRotation.value += totalRotation;
-
-  plate.value.style.transition = "transform 4s cubic-bezier(0.33, 1, 0.68, 1)";
-  plate.value.style.transform = `rotate(${currentRotation.value}deg)`;
-
+const spin = async () => {
+  centerText.value = "No más apuestas...";
   isResting.value = false;
 
-  resultNumber.value = selectedNumber;
-  resultColor.value = numberColors[selectedNumber];
-  setTimeout(() => {
-    isResting.value = true;
-    centerText.value = `Resultado: ${resultNumber.value}`;
+  try {
+    const response = await apiRouletteNumber.getRandomNumber();
 
-    previousResults.value.push({
-      number: selectedNumber,
-      color: resultColor.value,
-    });
-    if (previousResults.value.length > 10) {
-      previousResults.value.shift();
+    // const selectedNumber = response.id;
+    // const selectedColor = response.color;
+    const selectedNumber = 1; //PRUEBA ELIMINAR
+    const selectedColor = "red"; //PRUEBA ELIMINAR
+
+    const randIndex = numbersOrder.findIndex((n) => Number(n) === selectedNumber);
+    if (randIndex === -1) {
+      return $callNotification({ message: "Número inválido retornado por la API" });
     }
-  }, 4000);
+
+    const anglePerNumber = 360 / numbersOrder.length;
+    const extraRotations = 5;
+
+    const targetAngle = 360 - anglePerNumber * randIndex;
+    const currentAngle = currentRotation.value % 360;
+    const angleDiff = (targetAngle - currentAngle + 360) % 360;
+    const totalRotation = 360 * extraRotations + angleDiff;
+
+    currentRotation.value += totalRotation;
+
+    spinSound.value.currentTime = 0;
+    spinSound.value.play();
+
+    plate.value.style.transition = "transform 4s cubic-bezier(0.33, 1, 0.68, 1)";
+    plate.value.style.transform = `rotate(${currentRotation.value}deg)`;
+
+    resultNumber.value = selectedNumber;
+    resultColor.value = selectedColor;
+
+    const dataReturn = {
+      resultNumber: resultNumber.value,
+      resultColor: resultColor.value,
+    };
+
+    setTimeout(() => {
+      spinSound.value.pause();
+      spinSound.value.currentTime = 0;
+
+      isResting.value = true;
+      centerText.value = `Resultado: ${resultNumber.value}`;
+      previousResults.value.push({
+        number: resultNumber.value,
+        color: resultColor.value,
+      });
+      if (previousResults.value.length > 10) {
+        previousResults.value.shift();
+      }
+      emit("spin-end", dataReturn);
+    }, 4000);
+  } catch (error) {
+    isResting.value = true;
+    console.error(error);
+    $callNotification({ message: "Error al obtener el número de la ruleta." });
+  }
 };
 
 const reset = () => {
@@ -165,7 +169,7 @@ const reset = () => {
 };
 
 const getRotationStyle = (index) => {
-  const angle = (360 / numbers.length) * index;
+  const angle = (360 / numbersOrder.length) * index;
   return {
     transform: `rotateZ(${angle}deg)`,
   };
@@ -186,7 +190,6 @@ $spinButton: green;
 $resetButton: darkgreen;
 
 body {
-  font-family: "Playfair Display", serif;
   background-color: #300;
   background-size: 100px 100px;
   overflow: hidden;
@@ -358,7 +361,7 @@ body {
 
 .text-center {
   position: absolute;
-  top: 45%;
+  top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 130px;
@@ -375,6 +378,10 @@ body {
   z-index: 2;
 }
 
+.text-center.result {
+  top: 50%;
+}
+
 .arrow-pointer {
   position: absolute;
   left: 50%;
@@ -383,8 +390,17 @@ body {
   height: 0;
   border-left: 14px solid transparent;
   border-right: 14px solid transparent;
-  border-top: 24px solid #ffd23d; // dorado como el borde
+  border-top: 24px solid #ffd23d;
   z-index: 3;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.results-overlay {
+  position: absolute;
+  bottom: -60px; // o ajusta según el tamaño del componente Results
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  pointer-events: none; // Opcional, para evitar que bloquee clics
 }
 </style>

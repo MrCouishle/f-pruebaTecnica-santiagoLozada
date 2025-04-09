@@ -6,7 +6,8 @@
       class="result-box"
       :class="result.color"
     >
-      {{ result.number }}
+      <div class="number">{{ result.number }}</div>
+      <div class="parity">{{ isEven(result.number) ? "Par" : "Impar" }}</div>
     </div>
   </div>
 </template>
@@ -20,8 +21,10 @@ const props = defineProps({
 });
 
 const visibleResults = computed(() => {
-  return props.results.slice(0, 10);
+  return props.results.slice(0, 8);
 });
+
+const isEven = (num) => num % 2 === 0;
 </script>
 
 <style scoped>
@@ -34,17 +37,31 @@ const visibleResults = computed(() => {
 }
 
 .result-box {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 56px;
   border-radius: 4px;
   font-weight: bold;
-  font-size: 14px;
   color: white;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
   font-family: "Cinzel", serif;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.result-box .number {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.result-box .parity {
+  font-size: 11px;
+  opacity: 0.85;
+  line-height: 1;
+  margin-top: 2px;
 }
 
 .result-box.red {
