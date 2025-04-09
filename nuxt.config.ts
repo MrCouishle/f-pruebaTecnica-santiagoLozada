@@ -23,8 +23,6 @@ export default defineNuxtConfig({
   plugins: [
     "~/plugins/piniaPersisted.ts",
     "~/plugins/notification.ts",
-    "~/plugins/confirmation.ts",
-    "~/plugins/dayjs.ts",
     "~/plugins/api.ts",
   ],
 });

@@ -3,6 +3,5 @@
     <NuxtPage />
   </NuxtLayout>
   <Notification />
-  <!-- <Confirmation /> -->
   <Loader />
 </template>
