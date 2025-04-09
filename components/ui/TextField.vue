@@ -61,10 +61,4 @@ const onInput = (event: Event) => {
     emit("update:modelValue", target.value);
   }
 };
-watch(
-  () => props.modelValue,
-  (val) => {
-    console.log("modelValue changed:", val);
-  }
-);
 </script>

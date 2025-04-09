@@ -1,14 +1,15 @@
 <template>
   <v-autocomplete
+    @update:modelValue="(val) => $emit('update:modelValue', val)"
+    :menu-props="{ maxHeight: '200px' }"
+    :placeholder="placeholder"
     v-model="modelValueLocal"
     :items="computedItems"
-    :placeholder="placeholder"
-    :menu-props="{ maxHeight: '200px' }"
     variant="solo-filled"
-    hide-details
     density="comfortable"
+    :label="label"
+    hide-details
     dense
-    @update:modelValue="$emit('update:modelValue', modelValueLocal)"
   />
 </template>
 
@@ -23,6 +24,10 @@ const props = defineProps({
   placeholder: {
     type: String,
     default: "Escribe o selecciona un número",
+  },
+  label: {
+    type: String,
+    default: "",
   },
   items: {
     type: Array,

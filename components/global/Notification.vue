@@ -1,7 +1,7 @@
 <template>
   <v-snackbar
     v-model="visible"
-    :timeout="2000"
+    :timeout="4000"
     :color="color"
     location="top end"
     multi-line
