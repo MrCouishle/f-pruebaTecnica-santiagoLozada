@@ -34,11 +34,11 @@ export const useResult = defineStore("useResult", {
     }) {
       try {
         const response = await apiRequest({
-          endpoint: `/result/getValidateResult`,
           params: { userId, betValue, betNumber, resultNumber, betColor, evenOdd },
+          endpoint: `/result/getValidateResult`,
+          showNotify: true,
           method: "get",
         });
-        console.log("🚀 ~ response:", response);
         return response;
       } catch (error) {
         throw error;

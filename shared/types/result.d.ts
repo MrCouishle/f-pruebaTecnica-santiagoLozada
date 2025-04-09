@@ -3,6 +3,7 @@ interface IResult {
   betValue: number;
   profit: number;
   remainingBalance: number;
+  currentBalance: number;
   winner: boolean;
   userId: string;
   user: IUser;

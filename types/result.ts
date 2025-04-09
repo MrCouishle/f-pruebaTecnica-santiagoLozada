@@ -3,6 +3,7 @@ export class Result implements IResult {
   betValue: number = 0;
   profit: number = 0;
   remainingBalance: number = 0;
+  currentBalance: number = 0;
   winner: boolean = false;
   userId: string = "";
   user!: IUser;
