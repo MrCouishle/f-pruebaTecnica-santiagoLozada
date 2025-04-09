@@ -22,7 +22,7 @@
                     prepend-inner-icon="mdi-account"
                     placeholder="Digite el nombre"
                     label="Nombre de usuario"
-                    :disabled="flagUser"
+                    :disabled="disableUser"
                     v-model="user.name"
                     type="text"
                   />
@@ -34,7 +34,7 @@
                       v-model="data.initialBalance"
                       prepend-icon="mdi-cash"
                       label="Crédito inicial"
-                      :disabled="flagUser"
+                      :disabled="disableUser"
                     />
                   </v-col>
                   <v-col cols="4" class="px-1">
@@ -48,8 +48,8 @@
                   <v-col cols="4" class="px-1">
                     <UiMoneyField
                       prepend-icon="mdi-account-cash"
+                      :disabled="disableInputBet"
                       v-model="data.betValue"
-                      :disabled="isSpinning"
                       label="Apuesta"
                     />
                   </v-col>
@@ -60,7 +60,7 @@
                       prependIcon="mdi-account-cash"
                       text="Validar usuario"
                       color="amber-lighten-2"
-                      :disabled="flagUser"
+                      :disabled="disableUser"
                       @click="createUser"
                     />
                   </v-row>
@@ -158,7 +158,12 @@
         </v-container>
       </div>
     </div>
-    <DialogResult v-model:visible="showDialog" :result="result" />
+    <DialogResult
+      @closeSave="(userSave) => clearBets(true, userSave)"
+      @close="() => clearBets(false, null)"
+      v-model:visible="showDialog"
+      :result="result"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -177,50 +182,64 @@ const rouletteResult = ref<{ resultNumber: number; resultColor: string } | null>
 const rouletteNumbers = ref<Record<number, "red" | "black" | "green">>({});
 const disableAutocomplete = ref(false);
 const disableCheckboxes = ref(false);
+const disableInputBet = ref(false);
+const disableUser = ref(false);
 const isSpinning = ref(false);
 const showDialog = ref(false);
-const flagUser = ref(false);
 const onSpin = ref(false);
 
 const data = ref({
-  initialBalance: 0 as number | 0,
-  actualBalance: 0 as number | 0,
-  betValue: 0 as number | 0,
+  initialBalance: 0,
+  actualBalance: 0,
+  betValue: 0,
 });
 
 const bets = ref({
   selectedColor: false as "red" | "black" | "green" | false,
-  specificColor: null as "red" | "black" | null,
-  evenOddColor: null as "red" | "black" | null,
-  evenOdd: null as "even" | "odd" | null,
   colorAutocomplete: null as string | null,
-  labelAutocomplete: "#" as string,
+  evenOdd: false as "even" | "odd" | false,
   selectedNumber: null as number | null,
   colorEvenOdd: null as string | null,
+  labelAutocomplete: "#" as string,
   specific: null as string | null,
   number: null as number | null,
   color: null as string | null,
 });
 
 watch(
-  () => [bets.value.selectedColor, bets.value.evenOdd],
-  ([selectedColor, evenOdd]) => {
-    disableAutocomplete.value = selectedColor !== false || evenOdd !== false;
+  () => [bets.value.selectedColor, bets.value.evenOdd, data.value.betValue, onSpin.value],
+  ([selectedColor, evenOdd, betValue, onSpin]) => {
+    if (data.value.betValue <= 0) {
+      bets.value.selectedNumber = null;
+      bets.value.selectedColor = false;
+      bets.value.evenOdd = false;
+      setTimeout(() => {
+        disableAutocomplete.value = true;
+        disableCheckboxes.value = true;
+        isSpinning.value = true;
+      }, 100);
+    } else {
+      disableAutocomplete.value = onSpin == true ? true : false;
+      disableCheckboxes.value = onSpin == true ? true : false;
+      isSpinning.value = onSpin == true ? true : false;
+    }
+
+    disableAutocomplete.value = selectedColor != false || evenOdd != false;
   }
 );
 
 watch(
-  () => bets.value.selectedNumber,
-  async (selectedNumber) => {
-    disableCheckboxes.value = selectedNumber !== null;
-
+  () => [bets.value.selectedNumber],
+  ([selectedNumber]) => {
     if (selectedNumber != null) {
       const numberValue = parseInt(selectedNumber as unknown as string, 10);
       bets.value.colorAutocomplete = rouletteNumbers.value[numberValue] ?? null;
       bets.value.labelAutocomplete = numberValue % 2 === 0 ? "Par" : "Impar";
+      disableCheckboxes.value = true;
     } else {
       bets.value.colorAutocomplete = null;
       bets.value.labelAutocomplete = "";
+      disableCheckboxes.value = false;
     }
   }
 );
@@ -228,6 +247,7 @@ watch(
 onMounted(() => {
   disableAutocomplete.value = true;
   disableCheckboxes.value = true;
+  disableInputBet.value = true;
   isSpinning.value = true;
   getRouletteNumbers();
 });
@@ -258,10 +278,8 @@ const createUser = async () => {
     if (response) {
       Object.assign(user, response);
       data.value.actualBalance = response.balance;
-      disableAutocomplete.value = false;
-      disableCheckboxes.value = false;
-      isSpinning.value = false;
-      flagUser.value = true;
+      disableInputBet.value = false;
+      disableUser.value = true;
     }
   } catch (error) {
     console.error(error);
@@ -280,18 +298,28 @@ const spin = () => {
     return $callNotification({ message: "El crédito no es suficiente" });
   }
 
-  isSpinning.value = true;
-  onSpin.value = true;
+  const noBetsPlaced =
+    bets.value.selectedColor === false &&
+    bets.value.evenOdd === null &&
+    bets.value.selectedNumber === null;
 
-  setTimeout(() => {
-    onSpin.value = false;
-    isSpinning.value = false;
-  }, 100);
+  if (noBetsPlaced) {
+    return $callNotification({
+      message:
+        "Debes seleccionar al menos un tipo de apuesta (color, par/impar o número).",
+    });
+  }
+
+  data.value.actualBalance -= data.value.betValue;
+
+  disableAutocomplete.value = true;
+  disableInputBet.value = true;
+  onSpin.value = true;
 };
 
 const handleSpinEnd = (result: any) => {
+  disableAutocomplete.value = false;
   rouletteResult.value = result;
-  isSpinning.value = false;
   onSpin.value = false;
   validateResult();
 };
@@ -334,27 +362,24 @@ const validateResult = async () => {
   }
 };
 
-const clearBets = () => {
+const clearBets = (save: boolean, userSave: IUser | null) => {
+  if (save && userSave != null) {
+    data.value.actualBalance = userSave.balance;
+  }
+
   bets.value = {
-    color: null,
-    selectedColor: false,
-    colorEvenOdd: null,
-    evenOddColor: null,
-    evenOdd: null,
-    specific: null,
-    number: null,
-    specificColor: null,
-    selectedNumber: null,
     colorAutocomplete: null,
     labelAutocomplete: "",
+    selectedNumber: null,
+    selectedColor: false,
+    colorEvenOdd: null,
+    evenOdd: false,
+    specific: null,
+    number: null,
+    color: null,
   };
-  disableAutocomplete.value = false;
+  disableInputBet.value = false;
   data.value.betValue = 0;
-
-  return $callNotification({
-    message: "Campos de apuesta limpiados.",
-    type: "success",
-  });
 };
 </script>
 
