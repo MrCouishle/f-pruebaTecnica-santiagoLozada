@@ -98,10 +98,10 @@ const spin = async () => {
   try {
     const response = await apiRouletteNumber.getRandomNumber();
 
-    // const selectedNumber = response.id;
-    // const selectedColor = response.color;
-    const selectedNumber = 1; //PRUEBA ELIMINAR
-    const selectedColor = "red"; //PRUEBA ELIMINAR
+    const selectedNumber = response.id;
+    const selectedColor = response.color;
+    // const selectedNumber = 1; // Para dialog ganador
+    // const selectedColor = "red"; // Para dialog ganador
 
     const randIndex = numbersOrder.findIndex((n) => Number(n) === selectedNumber);
     if (randIndex === -1) {
