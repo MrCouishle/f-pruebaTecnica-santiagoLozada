@@ -4,7 +4,7 @@
     :model-value="formattedValue"
     @update:model-value="onInput"
     @keypress="onlyAllowNumbers"
-    :class="backgroundClass"
+    :bg-color="backgroundColor"
     density="comfortable"
     variant="solo-filled"
     :disabled="disabled"
@@ -24,7 +24,7 @@ const props = defineProps({
     required: true,
   },
   disabled: Boolean,
-  backgroundClass: {
+  backgroundColor: {
     type: String,
     default: "",
   },

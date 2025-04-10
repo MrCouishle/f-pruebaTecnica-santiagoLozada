@@ -41,9 +41,9 @@
                 <v-row class="pa-0 d-flex" no-gutters>
                   <v-col cols="6" class="px-1">
                     <UiMoneyField
-                      background-class="bg-black"
                       prepend-icon="mdi-cash-multiple"
                       v-model="data.actualBalance"
+                      background-color="#C7C7C7"
                       label="Crédito actual"
                       :readonly="true"
                     />
