@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     baseURL: "/roulette/",
     head: {
       title: "El juego de la ruleta",
-      link: [{ rel: "icon", type: "image/ico", href: "/roulette.ico" }],
+      link: [{ rel: "icon", type: "image/x-icon", href: "/roulette/roulette.ico" }],
     },
   },
 
