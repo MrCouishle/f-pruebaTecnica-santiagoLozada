@@ -1,7 +1,7 @@
 <template>
   <div class="results-container">
     <div
-      v-for="(result, index) in visibleResults"
+      v-for="(result, index) in props.results"
       :class="result.color"
       class="result-box"
       :key="index"
@@ -18,10 +18,6 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-});
-
-const visibleResults = computed(() => {
-  return props.results.slice(0, 8);
 });
 
 const isEven = (num) => num % 2 === 0;

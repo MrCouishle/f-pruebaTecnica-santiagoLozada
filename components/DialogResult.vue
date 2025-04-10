@@ -1,9 +1,9 @@
 <template>
   <v-dialog
-    v-model="dialog"
-    persistent
-    max-width="500"
     @update:modelValue="emit('update:visible', $event)"
+    v-model="dialog"
+    max-width="500"
+    persistent
   >
     <v-card class="dialog-card py-6 px-4">
       <div class="relative mb-4">
@@ -40,10 +40,10 @@
         />
         <UiButton
           prependIcon="mdi-close-box"
-          class="ml-4"
           color="amber-lighten-2"
+          @click="close(false)"
           text="Cerrar"
-          @click="close(faalse)"
+          class="ml-4"
         />
       </v-row>
     </v-card>
@@ -51,9 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import winnerAnimation from "@/assets/animations/winner.json";
-import loserAnimation from "@/assets/animations/loser.json";
-import lottie from "lottie-web";
+import type { AnimationItem } from "lottie-web";
+import { nextTick, ref, watch, reactive } from "vue";
 import { User } from "~/types";
 
 const { $callNotification } = useNuxtApp();
@@ -68,33 +67,41 @@ const props = defineProps({
 
 const emit = defineEmits(["update:visible", "close", "closeSave"]);
 
+const animationInstance = ref<AnimationItem | null>(null);
 const animationContainer = ref<HTMLElement | null>(null);
-let animationInstance: any = null;
 const dialog = ref(false);
 
 watch(
   () => props.visible,
-  (val) => {
+  async (val) => {
     dialog.value = val;
-    if (val) loadAnimation();
+    if (val && process.client) {
+      setTimeout(() => {
+        loadAnimation();
+      }, 300);
+    }
   }
 );
 
 const loadAnimation = async () => {
-  await nextTick();
-
   if (!animationContainer.value) return;
 
-  if (animationInstance) {
-    animationInstance.destroy();
+  const lottie = await import("lottie-web");
+
+  if (animationInstance.value) {
+    animationInstance.value.destroy();
   }
 
-  animationInstance = lottie.loadAnimation({
+  const animationPath = props.result.winner
+    ? "/animations/winner.json"
+    : "/animations/loser.json";
+
+  animationInstance.value = lottie.default.loadAnimation({
     container: animationContainer.value,
     renderer: "svg",
     loop: true,
     autoplay: true,
-    animationData: props.result.winner ? winnerAnimation : loserAnimation,
+    path: animationPath,
   });
 };
 

@@ -2,6 +2,7 @@ import axios from "axios";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const loaderStore = useLoader();
+
   // const baseURL = `http://108.166.183.149/api-roulette`;
   const baseURL = `http://localhost:5294`;
 
@@ -100,8 +101,15 @@ export default defineNuxtPlugin((nuxtApp) => {
 const getClientBaseUrl = () => {
   if (typeof window !== "undefined") {
     const { protocol, hostname } = window.location;
-    const port = "5294";
-
-    return `${protocol}//${hostname}:${port}`;
+    const port =
+      process.env.NODE_ENV === "development"
+        ? ":5025"
+        : process.env.NODE_ENV === "production"
+        ? ":8080"
+        : "";
+    return `${protocol}//${hostname}${port}/api/`;
   }
+  return process.env.NODE_ENV === "development"
+    ? "http://localhost:5025/api/"
+    : "http://localhost/api-roulette/";
 };

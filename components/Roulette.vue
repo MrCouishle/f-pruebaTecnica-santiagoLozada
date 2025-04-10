@@ -140,7 +140,7 @@ const spin = async () => {
         number: resultNumber.value,
         color: resultColor.value,
       });
-      if (previousResults.value.length > 10) {
+      if (previousResults.value.length > 8) {
         previousResults.value.shift();
       }
       emit("spin-end", dataReturn);

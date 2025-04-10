@@ -333,11 +333,11 @@ const validateResult = async () => {
     const payload: any = {
       userId: user.id,
       betValue: data.value.betValue,
-      betNumber: rouletteResult.value.resultNumber,
+      resultNumber: rouletteResult.value.resultNumber,
     };
 
     if (bets.value.selectedNumber !== null) {
-      payload.resultNumber = bets.value.selectedNumber;
+      payload.betNumber = bets.value.selectedNumber;
     }
 
     if (bets.value.selectedColor !== false) {
