@@ -1,15 +1,15 @@
 <template>
   <v-text-field
-    :model-value="formattedValue"
-    @input="onInput"
     :prepend-inner-icon="prependIcon"
+    :model-value="formattedValue"
     :placeholder="placeholder"
-    :label="label"
-    :type="inputType"
     variant="solo-filled"
     density="comfortable"
-    hide-details
+    :type="inputType"
+    @input="onInput"
     v-bind="$attrs"
+    :label="label"
+    hide-details
   />
 </template>
 

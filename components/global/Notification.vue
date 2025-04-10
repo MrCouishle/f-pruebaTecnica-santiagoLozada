@@ -1,11 +1,11 @@
 <template>
   <v-snackbar
+    location="top end"
+    class="rounded-lg"
     v-model="visible"
     :timeout="6000"
     :color="color"
-    location="top end"
     multi-line
-    class="rounded-lg"
   >
     <div class="d-flex align-center">
       <v-icon class="me-3" size="30">{{ icon }}</v-icon>
@@ -18,24 +18,18 @@
 </template>
 
 <script setup lang="ts">
-import { useNuxtApp } from "#app";
-import { ref, watch } from "vue";
-
 const { $useNotification, $offNotification } = useNuxtApp();
 
-// Le damos tipo al store para evitar el "unknown"
 const store = $useNotification as {
   base: NotificationParams;
 };
 
-// Refs reactivas para el snackbar
 const icon = ref("mdi-information");
 const color = ref("primary");
 const visible = ref(false);
 const message = ref("");
 const title = ref("");
 
-// Tipado explícito
 const typeMap = {
   info: {
     title: "¡Atención!",
@@ -59,7 +53,6 @@ const typeMap = {
   },
 } as const;
 
-// Escucha el cambio del estado y muestra el snackbar
 watch(
   () => store.base,
   (params) => {

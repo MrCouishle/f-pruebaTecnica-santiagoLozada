@@ -21,8 +21,8 @@ export default defineNuxtConfig({
     storesDirs: ["./stores/**", "./custom-folder/stores/**"],
   },
   plugins: [
-    "~/plugins/piniaPersisted.ts",
-    "~/plugins/notification.ts",
-    "~/plugins/api.ts",
+    { src: "~/plugins/piniaPersisted.ts", mode: "client" },
+    { src: "~/plugins/notification.ts", mode: "client" },
+    { src: "~/plugins/api.client.ts", mode: "client" },
   ],
 });

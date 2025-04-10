@@ -11,9 +11,9 @@
         <ul :data-spinto="spinto">
           <li
             v-for="(num, index) in numbersOrder"
-            :key="num"
             :class="['number', rouletteNumbers[num]]"
             :style="getRotationStyle(index)"
+            :key="num"
           >
             <label>
               <input type="radio" name="pit" :value="num" />
@@ -33,8 +33,6 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-
 const props = defineProps({
   rouletteNumbers: {
     type: Object,
@@ -155,12 +153,12 @@ const spin = async () => {
 };
 
 const reset = () => {
+  previousResults.value = [];
   resultNumber.value = "00";
   resultColor.value = "red";
-  previousResults.value = [];
-  spinto.value = null;
-  isResting.value = false;
   currentRotation.value = 0;
+  isResting.value = false;
+  spinto.value = null;
 
   if (plate.value) {
     plate.value.style.transition = "none";
@@ -232,7 +230,22 @@ body {
   position: relative;
   z-index: 1;
 }
+
+.arrow-pointer {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 24px solid #ffd23d;
+  z-index: 3;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
 @import url("https://fonts.googleapis.com/css2?family=Cinzel&display=swap");
+
 .plate,
 .plate * {
   font-family: "Cinzel", serif;
@@ -288,6 +301,37 @@ body {
   }
 }
 
+.plate-center-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    #fff8dc 0%,
+    #f7d774 20%,
+    #d4af37 50%,
+    #b8860b 80%,
+    #fff8dc 100%
+  );
+  color: #3c2f00;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  padding: 12px;
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3),
+    inset 0 0 16px rgba(255, 215, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.5),
+    0 0 12px rgba(255, 215, 0, 0.3);
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5), -1px -1px 1px rgba(128, 96, 0, 0.4);
+  z-index: 2;
+}
+
 .number {
   width: $pitwidth;
   height: math.div($platesize, 2);
@@ -328,37 +372,6 @@ body {
   left: -(math.div($pitwidth, 2));
 }
 
-.plate-center-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    #fff8dc 0%,
-    #f7d774 20%,
-    #d4af37 50%,
-    #b8860b 80%,
-    #fff8dc 100%
-  );
-  color: #3c2f00;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: bold;
-  text-align: center;
-  padding: 12px;
-  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3),
-    inset 0 0 16px rgba(255, 215, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.5),
-    0 0 12px rgba(255, 215, 0, 0.3);
-  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5), -1px -1px 1px rgba(128, 96, 0, 0.4);
-  z-index: 2;
-}
-
 .text-center {
   position: absolute;
   top: 48%;
@@ -382,25 +395,12 @@ body {
   top: 50%;
 }
 
-.arrow-pointer {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-top: 24px solid #ffd23d;
-  z-index: 3;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-}
-
 .results-overlay {
   position: absolute;
-  bottom: -60px; // o ajusta según el tamaño del componente Results
+  bottom: -60px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
-  pointer-events: none; // Opcional, para evitar que bloquee clics
+  pointer-events: none;
 }
 </style>

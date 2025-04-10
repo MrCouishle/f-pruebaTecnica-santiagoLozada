@@ -17,18 +17,18 @@
           >
             <v-col cols="12" md="4" class="px-2">
               <v-row class="d-flex flex-column" style="gap: 10px">
-                <v-col cols="12" class="pa-0">
-                  <UiTextField
-                    prepend-inner-icon="mdi-account"
-                    placeholder="Digite el nombre"
-                    label="Nombre de usuario"
-                    :disabled="disableUser"
-                    v-model="user.name"
-                    type="text"
-                  />
-                </v-col>
                 <v-row class="pa-0 d-flex" no-gutters>
-                  <v-col cols="4" class="px-1">
+                  <v-col cols="7" class="pa-0">
+                    <UiTextField
+                      prepend-inner-icon="mdi-account"
+                      placeholder="Digite el nombre"
+                      label="Nombre de usuario"
+                      :disabled="disableUser"
+                      v-model="user.name"
+                      type="text"
+                    />
+                  </v-col>
+                  <v-col cols="5" class="px-1">
                     <UiMoneyField
                       placeholder="Digite el monto inicial"
                       v-model="data.initialBalance"
@@ -37,15 +37,18 @@
                       :disabled="disableUser"
                     />
                   </v-col>
-                  <v-col cols="4" class="px-1">
+                </v-row>
+                <v-row class="pa-0 d-flex" no-gutters>
+                  <v-col cols="6" class="px-1">
                     <UiMoneyField
+                      background-class="bg-black"
                       prepend-icon="mdi-cash-multiple"
                       v-model="data.actualBalance"
                       label="Crédito actual"
                       :readonly="true"
                     />
                   </v-col>
-                  <v-col cols="4" class="px-1">
+                  <v-col cols="6" class="px-1">
                     <UiMoneyField
                       prepend-icon="mdi-account-cash"
                       :disabled="disableInputBet"
@@ -58,9 +61,9 @@
                   <v-row class="pa-0 d-flex justify-center">
                     <UiButton
                       prependIcon="mdi-account-cash"
-                      text="Validar usuario"
                       color="amber-lighten-2"
                       :disabled="disableUser"
+                      text="Validar usuario"
                       @click="createUser"
                     />
                   </v-row>
@@ -159,8 +162,8 @@
       </div>
     </div>
     <DialogResult
-      @closeSave="(userSave) => clearBets(true, userSave)"
-      @close="() => clearBets(false, null)"
+      @closeSave="(userSave: IUser) => clearBets(true, userSave)"
+      @close="(userSave: IUser) => clearBets(false, userSave)"
       v-model:visible="showDialog"
       :result="result"
     />
@@ -201,9 +204,6 @@ const bets = ref({
   selectedNumber: null as number | null,
   colorEvenOdd: null as string | null,
   labelAutocomplete: "#" as string,
-  specific: null as string | null,
-  number: null as number | null,
-  color: null as string | null,
 });
 
 watch(
@@ -300,7 +300,7 @@ const spin = () => {
 
   const noBetsPlaced =
     bets.value.selectedColor === false &&
-    bets.value.evenOdd === null &&
+    bets.value.evenOdd === false &&
     bets.value.selectedNumber === null;
 
   if (noBetsPlaced) {
@@ -362,8 +362,8 @@ const validateResult = async () => {
   }
 };
 
-const clearBets = (save: boolean, userSave: IUser | null) => {
-  if (save && userSave != null) {
+const clearBets = (save: boolean, userSave: IUser) => {
+  if (userSave != null) {
     data.value.actualBalance = userSave.balance;
   }
 
@@ -374,11 +374,9 @@ const clearBets = (save: boolean, userSave: IUser | null) => {
     selectedColor: false,
     colorEvenOdd: null,
     evenOdd: false,
-    specific: null,
-    number: null,
-    color: null,
   };
   disableInputBet.value = false;
+  isSpinning.value = true;
   data.value.betValue = 0;
 };
 </script>

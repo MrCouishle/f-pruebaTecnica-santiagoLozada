@@ -2,9 +2,9 @@
   <div class="results-container">
     <div
       v-for="(result, index) in visibleResults"
-      :key="index"
-      class="result-box"
       :class="result.color"
+      class="result-box"
+      :key="index"
     >
       <div class="number">{{ result.number }}</div>
       <div class="parity">{{ isEven(result.number) ? "Par" : "Impar" }}</div>

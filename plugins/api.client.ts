@@ -2,7 +2,8 @@ import axios from "axios";
 
 export default defineNuxtPlugin((nuxtApp) => {
   const loaderStore = useLoader();
-  const baseURL = getClientBaseUrl();
+  // const baseURL = `http://108.166.183.149/api-roulette`;
+  const baseURL = `http://localhost:5294`;
 
   const $axios = axios.create({
     baseURL: baseURL,
@@ -10,14 +11,8 @@ export default defineNuxtPlugin((nuxtApp) => {
   });
 
   $axios.interceptors.request.use((config) => {
-    const token = useCookie<string | null | undefined>("token");
-    const tokenValue = token.value || null;
     if (config.data instanceof FormData) {
       config.headers["Content-Type"] = "multipart/form-data";
-    }
-
-    if (tokenValue) {
-      config.headers.Authorization = `Bearer ${tokenValue}`;
     }
 
     loaderStore.onLoader();
@@ -31,7 +26,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
     (error) => {
       loaderStore.offLoader();
-      const token: any = useCookie("token");
+
       const status = error.response ? error.response.status : null;
 
       const errorResponse = {
@@ -41,7 +36,6 @@ export default defineNuxtPlugin((nuxtApp) => {
       };
       if (!error.response?.data.message) {
         if (status === 401) {
-          if (token.value) token.value = null;
           errorResponse.message =
             "You do not have the necessary permissions to access this information.";
         } else if (status === 404) {

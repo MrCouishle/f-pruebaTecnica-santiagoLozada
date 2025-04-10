@@ -1,21 +1,21 @@
 <template>
   <v-text-field
-    v-bind="$attrs"
-    :label="label"
-    :disabled="disabled"
     :prepend-inner-icon="prependIcon"
     :model-value="formattedValue"
     @update:model-value="onInput"
-    hide-details
+    @keypress="onlyAllowNumbers"
+    :class="backgroundClass"
     density="comfortable"
     variant="solo-filled"
+    :disabled="disabled"
     inputmode="numeric"
+    v-bind="$attrs"
+    :label="label"
+    hide-details
   />
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
 const props = defineProps({
   label: String,
   prependIcon: String,
@@ -24,6 +24,10 @@ const props = defineProps({
     required: true,
   },
   disabled: Boolean,
+  backgroundClass: {
+    type: String,
+    default: "",
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -39,9 +43,17 @@ const formattedValue = computed(() => {
   return isNaN(n) ? "" : formatter.format(n);
 });
 
+const onlyAllowNumbers = (e: KeyboardEvent) => {
+  const allowedKeys = ["Backspace", "ArrowLeft", "ArrowRight", "Tab", "Delete"];
+  const isNumber = /^[0-9]$/.test(e.key);
+  if (!isNumber && !allowedKeys.includes(e.key)) {
+    e.preventDefault();
+  }
+};
+
 const onInput = (val: string) => {
-  const cleaned = val.replace(/[^\d]/g, ""); // quitamos todo lo que no sea número
-  const numericValue = parseFloat(cleaned) / 100; // convertimos a decimal con centavos
+  const cleaned = val.replace(/[^\d]/g, "");
+  const numericValue = parseFloat(cleaned) / 100;
   emit("update:modelValue", numericValue);
 };
 </script>

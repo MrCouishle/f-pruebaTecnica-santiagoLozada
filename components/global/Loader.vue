@@ -5,18 +5,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
 const loaderStore = useLoader();
 const showLoader = ref(false);
+
 let timer: number | null = null;
 
 watch(
   () => loaderStore.loader,
   (newVal: any) => {
     if (newVal) {
-      timer = window.setTimeout(() => {
-        showLoader.value = true;
-      }, 300);
     } else {
       if (timer) {
         clearTimeout(timer);

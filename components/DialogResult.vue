@@ -43,7 +43,7 @@
           class="ml-4"
           color="amber-lighten-2"
           text="Cerrar"
-          @click="close"
+          @click="close(faalse)"
         />
       </v-row>
     </v-card>
@@ -53,12 +53,12 @@
 <script setup lang="ts">
 import winnerAnimation from "@/assets/animations/winner.json";
 import loserAnimation from "@/assets/animations/loser.json";
-import { ref, watch } from "vue";
 import lottie from "lottie-web";
 import { User } from "~/types";
 
 const { $callNotification } = useNuxtApp();
 const apiResult = useResult();
+
 const userSave = reactive(User.create());
 
 const props = defineProps({
@@ -117,7 +117,7 @@ const saveResult = async () => {
 const close = (save: boolean) => {
   dialog.value = false;
   emit("update:visible", false);
-  save ? emit("closeSave", userSave) : emit("close");
+  save ? emit("closeSave", userSave) : emit("close", props.result.user);
 };
 </script>
 
@@ -170,7 +170,7 @@ const close = (save: boolean) => {
 }
 
 .wave-text {
-  margin-top: -70px; /* Ajustá este valor según cuánto quieras subir */
+  margin-top: -70px;
 }
 
 @keyframes wave {

@@ -7,10 +7,10 @@
     :items="computedItems"
     variant="solo-filled"
     density="comfortable"
+    autocomplete="off"
     :label="label"
     hide-details
     dense
-    autocomplete="off"
   />
 </template>
 

@@ -1,12 +1,12 @@
 <template>
   <div class="checkbox-wrapper">
     <v-checkbox
+      v-bind="$attrs"
       v-model="model"
       :label="label"
       :color="color"
       :value="value"
       hide-details
-      v-bind="$attrs"
     />
   </div>
 </template>
